@@ -42,3 +42,6 @@ install(TARGETS ch340g_static
 
 # Install header files
 install(FILES ch340g.h DESTINATION /usr/local/include)
+
+# Include the tests directory
+add_subdirectory(tests)
