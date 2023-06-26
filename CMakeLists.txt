@@ -28,3 +28,17 @@ target_link_directories(
 # Link against libusb
 target_link_libraries(ch340g PUBLIC -lusb-1.0)
 target_link_libraries(ch340g_static PUBLIC -lusb-1.0)
+
+
+# Install shared library
+install(TARGETS ch340g
+        LIBRARY DESTINATION /usr/local/lib
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+# Install static library
+install(TARGETS ch340g_static
+        ARCHIVE DESTINATION /usr/local/lib
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+# Install header files
+install(FILES ch340g.h DESTINATION /usr/local/include)
