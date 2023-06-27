@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "ch340g-usr"
+version = "0.0.1"
+description = "userspace usb driver for ch340g devices"
+authors = ["Sean Pollock <seanap@protonmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "ch340g_usr"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+Cython = "^0.29.35"
+pytest-cython = "^0.2.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
