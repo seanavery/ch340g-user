@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <iostream>
 
+namespace driver {
 int CH340G::init() {
     int err;
     
@@ -171,4 +172,5 @@ int CH340G::bulk_read(unsigned char endpoint, unsigned char* data, int length, u
     std::cout << "read bytes: " << transferred << std::endl;
 
     return transferred;
+}
 }
