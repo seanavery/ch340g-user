@@ -1,4 +1,4 @@
-# ch340g-user
+# lib-ch340g
 > read/write to ch340g device without tty driver
 
 ___
