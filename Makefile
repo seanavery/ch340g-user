@@ -26,6 +26,7 @@ bin-arm64:
 		--name lib-ch340g-arm64-bin \
 		lib-ch340g-arm64 && \
 	docker cp lib-ch340g-arm64-bin:/usr/local/lib/libch340g_static.a ./bin &&  \
-	docker stop lib-ch340g-arm64-bin
+	docker cp lib-ch340g-arm64-bin:/usr/local/lib/libch340g.so.0.0.1 ./bin && \
+	docker cp lib-ch340g-arm64-bin:/usr/local/include/ch340g.h ./bin && \
+	docker stop lib-ch340g-arm64-bin && \
 	docker rm lib-ch340g-arm64-bin
-
