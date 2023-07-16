@@ -1,0 +1,27 @@
+FROM ubuntu:focal AS qemu
+
+# Install QEMU for ARM64 emulation
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    qemu-user-static
+
+# Download the ARM64 Ubuntu base image
+FROM arm64v8/ubuntu:focal
+
+# Copy the QEMU binary from the previous stage
+COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin/
+
+# Install dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get -y update
+RUN apt-get -y install \
+    git cmake build-essential \
+    libusb-1.0-0-dev 
+
+# Install libch340g
+RUN git clone https://github.com/seanavery/ch340g-user.git && \
+    cd ch340g-user && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install
