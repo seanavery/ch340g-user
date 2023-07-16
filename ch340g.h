@@ -14,7 +14,6 @@ uint8_t rts = 0;
 
 // 1a86:7523 QinHeng Electronics HL-340 USB-Serial adapter
 // VENDOR: 6790; PRODUCT: 29987
-namespace driver {
 class CH340G {
     private:
         libusb_context *ctx = NULL;
@@ -32,4 +31,3 @@ class CH340G {
         int bulk_read(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout);
 
 };
-}
