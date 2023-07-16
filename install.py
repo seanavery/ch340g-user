@@ -8,8 +8,9 @@ extensions = [
         name="ch340g",
         sources=["ch340g.pyx"],
         language="c++",
+        include_dirs=["."],  # Add the directory containing ch340g.h and ch340g.cpp
         libraries=["usb-1.0"],  # Add any required libraries here
-        output_dir="build",
+        output_dir="cybuild",
     )
 ]
 
