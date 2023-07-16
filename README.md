@@ -9,7 +9,7 @@ You bought an off brand arduino and realize that it comes with a ch340 instead o
 
 ### usage
 
-Dyanmic lib
+Dynamic lib
 
 ```bash
 wget https://github.com/seanavery/lib-ch340g/releases/download/v0.0.1/libch340g.so.0.0.1 -o /usr/local/lib
