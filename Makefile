@@ -4,7 +4,7 @@ build:
 	cd build && \
 	cmake .. && \
 	make
-docker:
+x86:
 	docker build \
-	-t ch340g-user \
-	-f ./etc/Dockerfile ./
+	-t lib-ch340g-x86 \
+	-f ./etc/Dockerfile.x86 ./
