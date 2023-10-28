@@ -1,5 +1,9 @@
-.PHONY: build
 # Local build
+install: build
+	cd build && \
+	make install
+
+.PHONY: build
 build:
 	mkdir -p build && \
 	cd build && \
