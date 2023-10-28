@@ -1,7 +1,7 @@
 #include <libusb-1.0/libusb.h>
+#include <vector>
+#include <string>
 
-#define VENDOR 0x1a86
-#define PRODUCT 0x7523
 #define INTERFACE 0
 #define BAUDRATE 115200
 
@@ -11,9 +11,6 @@
 uint8_t dtr = 0;
 uint8_t rts = 0;
 
-
-// 1a86:7523 QinHeng Electronics HL-340 USB-Serial adapter
-// VENDOR: 6790; PRODUCT: 29987
 class CH340G {
     private:
         libusb_context *ctx = NULL;
@@ -31,3 +28,16 @@ class CH340G {
         int bulk_read(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout);
 
 };
+
+struct UsbDeviceInfo {
+    uint16_t vendorId;
+    uint16_t productId;
+    std::string description; // Optional: To store a device description
+};
+
+// Define the list of expected Vendor and Product IDs
+std::vector<UsbDeviceInfo> expectedDevices = {
+    {0x1a86, 0x7523, "QinHeng Electronics HL-340 USB-Serial adapter"},
+    // Add more devices as needed
+};
+

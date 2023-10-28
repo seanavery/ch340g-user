@@ -53,11 +53,12 @@ int CH340G::init_usb() {
     for (int i = 0; i < num_devices; i++) {
         libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev_list[i], &desc);
-        std::cout << "idVendor: " << desc.idVendor << std::endl;
-        std::cout << "idProduct: " << desc.idProduct << std::endl;
-        if (desc.idVendor == VENDOR && desc.idProduct == PRODUCT) {
-            printf("found product/vendor \n");
-            dev_handle = libusb_open_device_with_vid_pid(ctx, VENDOR, PRODUCT);
+
+        for (const UsbDeviceInfo& expectedDevice : expectedDevices) {
+            if (desc.idVendor == expectedDevice.vendorId && desc.idProduct == expectedDevice.productId) {
+                std::cout << "Description: " << expectedDevice.description << std::endl;
+                dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
+            }
         }
     }
 
