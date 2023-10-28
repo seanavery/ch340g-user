@@ -24,3 +24,17 @@ Header File
 ```bash
 wget https://github.com/seanavery/lib-ch340g/releases/download/v0.0.1/ch340g.h -o /usr/local/include
 ```
+
+### development
+
+```bash
+make build # builds static and dynamic target
+```
+
+```bash
+make build-x86 # builds x86 targets in docker
+```
+
+```bash
+make build-arm64 # builds arm64 targets in docker
+```
