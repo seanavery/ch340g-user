@@ -49,15 +49,46 @@ int CH340G::init_usb() {
         return -1;
     }
 
-    // iterate through num_devices
+    bool deviceFound = false;
     for (int i = 0; i < num_devices; i++) {
         libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev_list[i], &desc);
-
         for (const UsbDeviceInfo& expectedDevice : expectedDevices) {
             if (desc.idVendor == expectedDevice.vendorId && desc.idProduct == expectedDevice.productId) {
                 std::cout << "Description: " << expectedDevice.description << std::endl;
                 dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
+                if (dev_handle) {
+                    std::cout << "Device opened" << std::endl;
+
+                    libusb_config_descriptor *config;
+                    libusb_get_active_config_descriptor(dev_list[i], &config);
+
+                    int interfaceNum = config->interface[0].altsetting[0].bInterfaceNumber;
+                    std::cout << "Interface number: " << interfaceNum << std::endl;
+
+                    if (libusb_kernel_driver_active(dev_handle, interfaceNum)) {
+                        err = libusb_detach_kernel_driver(dev_handle, interfaceNum);
+                        if (err != 0) {
+                            std::cout << "Error detaching kernel driver: " << libusb_error_name(err) << std::endl;
+                            libusb_close(dev_handle);
+                            libusb_exit(ctx);
+                            return err;
+                        }
+                    }
+                    err = libusb_claim_interface(dev_handle, interfaceNum);
+                    
+                    libusb_free_config_descriptor(config);  // Free the configuration descriptor.
+                    
+                    if (err == 0) {
+                        deviceFound = true;
+                        break;  // Break out of the loop once a device is found and an interface is claimed.
+                    } else {
+                        std::cout << "Error claiming interface: " << libusb_error_name(err) << std::endl;
+                        libusb_close(dev_handle);  // Close the handle if we couldn't claim the interface.
+                        dev_handle = NULL;
+                        return err;
+                    }
+                }
             }
         }
     }
@@ -65,12 +96,6 @@ int CH340G::init_usb() {
     if (dev_handle == NULL) {
         printf("could not find MCU \n");
         return -1;
-    }
-    
-    err = libusb_claim_interface(dev_handle, INTERFACE);
-    if (err < 0) {
-        printf("could not claim interface \n");
-        return err;
     }
 
     return err;
