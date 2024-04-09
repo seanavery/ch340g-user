@@ -11,7 +11,7 @@
 uint8_t dtr = 0;
 uint8_t rts = 0;
 
-class CH340G {
+class CH340 {
     private:
         libusb_context *ctx = NULL;
         libusb_device_handle *dev_handle;
@@ -19,8 +19,8 @@ class CH340G {
     public:
         // USB driver
         bool connected;
-        int init();
-        int init_usb();
+        int init(int vendor, int product);
+        int init_usb(int vendor, int product);
         int handshake();
         int set_baud();
         int up();
@@ -36,8 +36,8 @@ struct UsbDeviceInfo {
 };
 
 // Define the list of expected Vendor and Product IDs
-std::vector<UsbDeviceInfo> expectedDevices = {
-    {0x1a86, 0x7523, "QinHeng Electronics HL-340 USB-Serial adapter"},
-    // Add more devices as needed
-};
+// std::vector<UsbDeviceInfo> expectedDevices = {
+//     {0x1a86, 0x7523, "QinHeng Electronics HL-340 USB-Serial adapter"},
+//     // Add more devices as needed
+// };
 

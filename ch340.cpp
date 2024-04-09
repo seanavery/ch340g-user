@@ -1,11 +1,12 @@
-#include "ch340g.h"
+#include "ch340.h"
 #include <stdio.h>
 #include <iostream>
 
-int CH340G::init() {
+// pass in vendor product
+int CH340::init(int vendor, int product) {
     int err;
     
-    err = init_usb();
+    err = init_usb(vendor, product);
     if (err != 0) {
         printf("error: %d \n", err);
         return err;
@@ -35,7 +36,7 @@ int CH340G::init() {
     return err;
 }
 
-int CH340G::init_usb() {
+int CH340::init_usb(int vendor, int product) {
     int err;
 
     err = libusb_init(&ctx);
@@ -53,41 +54,41 @@ int CH340G::init_usb() {
     for (int i = 0; i < num_devices; i++) {
         libusb_device_descriptor desc;
         libusb_get_device_descriptor(dev_list[i], &desc);
-        for (const UsbDeviceInfo& expectedDevice : expectedDevices) {
-            if (desc.idVendor == expectedDevice.vendorId && desc.idProduct == expectedDevice.productId) {
-                std::cout << "Description: " << expectedDevice.description << std::endl;
-                dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
-                if (dev_handle) {
-                    std::cout << "Device opened" << std::endl;
+        std::cout << "Product: " << desc.iProduct << std::endl;
+        std::cout << "Vendor: " << desc.idVendor << std::endl;
+        std::cout << "Description: " << desc.iManufacturer << std::endl;
+        if (desc.idVendor == vendor && desc.idProduct == product) {
+            dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
+            if (dev_handle) {
+                std::cout << "Device opened" << std::endl;
 
-                    libusb_config_descriptor *config;
-                    libusb_get_active_config_descriptor(dev_list[i], &config);
+                libusb_config_descriptor *config;
+                libusb_get_active_config_descriptor(dev_list[i], &config);
 
-                    int interfaceNum = config->interface[0].altsetting[0].bInterfaceNumber;
-                    std::cout << "Interface number: " << interfaceNum << std::endl;
+                int interfaceNum = config->interface[0].altsetting[0].bInterfaceNumber;
+                std::cout << "Interface number: " << interfaceNum << std::endl;
 
-                    if (libusb_kernel_driver_active(dev_handle, interfaceNum)) {
-                        err = libusb_detach_kernel_driver(dev_handle, interfaceNum);
-                        if (err != 0) {
-                            std::cout << "Error detaching kernel driver: " << libusb_error_name(err) << std::endl;
-                            libusb_close(dev_handle);
-                            libusb_exit(ctx);
-                            return err;
-                        }
-                    }
-                    err = libusb_claim_interface(dev_handle, interfaceNum);
-                    
-                    libusb_free_config_descriptor(config);  // Free the configuration descriptor.
-                    
-                    if (err == 0) {
-                        deviceFound = true;
-                        break;  // Break out of the loop once a device is found and an interface is claimed.
-                    } else {
-                        std::cout << "Error claiming interface: " << libusb_error_name(err) << std::endl;
-                        libusb_close(dev_handle);  // Close the handle if we couldn't claim the interface.
-                        dev_handle = NULL;
+                if (libusb_kernel_driver_active(dev_handle, interfaceNum)) {
+                    err = libusb_detach_kernel_driver(dev_handle, interfaceNum);
+                    if (err != 0) {
+                        std::cout << "Error detaching kernel driver: " << libusb_error_name(err) << std::endl;
+                        libusb_close(dev_handle);
+                        libusb_exit(ctx);
                         return err;
                     }
+                }
+                err = libusb_claim_interface(dev_handle, interfaceNum);
+                
+                libusb_free_config_descriptor(config);  // Free the configuration descriptor.
+                
+                if (err == 0) {
+                    deviceFound = true;
+                    break;  // Break out of the loop once a device is found and an interface is claimed.
+                } else {
+                    std::cout << "Error claiming interface: " << libusb_error_name(err) << std::endl;
+                    libusb_close(dev_handle);  // Close the handle if we couldn't claim the interface.
+                    dev_handle = NULL;
+                    return err;
                 }
             }
         }
@@ -101,7 +102,7 @@ int CH340G::init_usb() {
     return err;
 }
 
-int CH340G::handshake() {
+int CH340::handshake() {
   if (dev_handle == NULL) {
     printf("dev_handle not defined \n");
     return -1;
@@ -134,7 +135,7 @@ int CH340G::handshake() {
   return 0;
 }
 
-int CH340G::set_baud() {
+int CH340::set_baud() {
     static int baud[] = {2400, 0xd901, 0x0038, 4800, 0x6402,
                 0x001f, 9600, 0xb202, 0x0013, 19200, 0xd902, 0x000d, 38400,
                             0x6403, 0x000a, 115200, 0xcc03, 0x0008};
@@ -159,7 +160,7 @@ int CH340G::set_baud() {
     return err;
 }
 
-int CH340G::up() {
+int CH340::up() {
     int err = 0;
     err = libusb_control_transfer(dev_handle, CTRL_OUT, 0xa4, ~((dtr ? 1 << 5 : 0) | (rts ? 1 << 6 : 0)), 0, NULL, 0, 1000);
     if (err < 0) {
@@ -169,7 +170,7 @@ int CH340G::up() {
     return err;
 }
 
-int CH340G::bulk_write(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout) {
+int CH340::bulk_write(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout) {
     int err = 0;
     
     int transferred = 0;
@@ -184,7 +185,7 @@ int CH340G::bulk_write(unsigned char endpoint, unsigned char* data, int length, 
     return err;
 }
 
-int CH340G::bulk_read(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout) {
+int CH340::bulk_read(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout) {
     int err = 0;
 
     int transferred = 0;
