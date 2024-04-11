@@ -1,9 +1,9 @@
-# Local build
+.PHONY: build install build-x86 build-arm64 bin-arm64
+
 install: build
 	cd build && \
 	make install
 
-.PHONY: build
 build:
 	mkdir -p build && \
 	cd build && \
@@ -24,13 +24,10 @@ build-arm64:
 
 # Copies library files from container to host
 bin-arm64:
-	rm -rf ./bin | true && \
-	mkdir -p ./bin && \
-	docker run -d \
-		--name lib-ch340g-arm64-bin \
-		lib-ch340g-arm64 && \
-	docker cp lib-ch340g-arm64-bin:/usr/local/lib/libch340g_static.a ./bin &&  \
-	docker cp lib-ch340g-arm64-bin:/usr/local/lib/libch340g.so.0.0.1 ./bin && \
-	docker cp lib-ch340g-arm64-bin:/usr/local/include/ch340g.h ./bin && \
-	docker stop lib-ch340g-arm64-bin && \
+	rm -rf ./bin || true
+	mkdir -p ./bin
+	docker run --name lib-ch340g-arm64-bin lib-ch340g-arm64
+	docker cp lib-ch340g-arm64-bin:/usr/local/lib/ ./bin
+	docker cp lib-ch340g-arm64-bin:/usr/local/include/ch340g.h ./bin
+	docker stop lib-ch340g-arm64-bin
 	docker rm lib-ch340g-arm64-bin
