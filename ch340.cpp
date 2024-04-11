@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <iostream>
 
-int CH340::init(int vendor, int product) {
+int CH340::init(int vendor, int product, int baudrate) {
     int err;
     
     err = init_usb(vendor, product);
@@ -19,7 +19,7 @@ int CH340::init(int vendor, int product) {
     }
     printf("ch340g initialized \n");
 
-    err = set_baud();
+    err = set_baud(baudrate);
     if (err != 0) {
         printf("error: %d \n", err);
         return err;
@@ -140,7 +140,7 @@ int CH340::handshake() {
   return 0;
 }
 
-int CH340::set_baud() {
+int CH340::set_baud(int baudrate) {
     // List of available baudrates
     static int baud[] = {
         2400,
@@ -151,8 +151,9 @@ int CH340::set_baud() {
         115200
     };
     int err = 0;
+
     for (int i = 0; i < sizeof(baud)/sizeof(int) / 3; i++) {
-        if (baud[i * 3] == BAUDRATE) {
+        if (baud[i * 3] == baudrate) {
 
             err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x1312, baud[i * 3 + 1], NULL, 0, 1000);
             if (err < 0) {

@@ -20,10 +20,10 @@ class CH340 {
     public:
         // USB driver
         bool connected;
-        int init(int vendor, int product);
+        int init(int vendor, int product, int baudrate=115200);
         int init_usb(int vendor, int product);
         int handshake();
-        int set_baud();
+        int set_baud(int baudrate);
         int up();
         int bulk_write(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout);
         int bulk_read(unsigned char endpoint, unsigned char* data, int length, unsigned int timeout);
