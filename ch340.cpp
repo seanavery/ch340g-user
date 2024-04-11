@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <iostream>
 
-// pass in vendor product
 int CH340::init(int vendor, int product) {
     int err;
     
@@ -142,13 +141,14 @@ int CH340::handshake() {
 }
 
 int CH340::set_baud() {
+    // List of available baudrates
     static int baud[] = {
-        2400,   0xd901, 0x0038,
-        4800,   0x6402, 0x001f,
-        9600,   0xb202, 0x0013,
-        19200,  0xd902, 0x000d,
-        38400,  0x6403, 0x000a,
-        115200, 0xcc03, 0x0008
+        2400,
+        4800,
+        9600,
+        19200,
+        38400,
+        115200
     };
     int err = 0;
     for (int i = 0; i < sizeof(baud)/sizeof(int) / 3; i++) {
