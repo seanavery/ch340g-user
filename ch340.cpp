@@ -52,7 +52,6 @@ int CH340::init_usb(int vendor, int product) {
     }
 
     bool deviceFound = false;
-    std::cout << "looking for vendor: " << vendor << " product: " << product << std::endl;
     for (ssize_t i = 0; i < num_devices; i++) {
         libusb_device_descriptor desc;
         if (libusb_get_device_descriptor(dev_list[i], &desc) == 0) {
@@ -66,7 +65,6 @@ int CH340::init_usb(int vendor, int product) {
                 dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
                 if (dev_handle) {
                     std::cout << "Device opened" << std::endl;
-
                     libusb_config_descriptor *config;
                     libusb_get_active_config_descriptor(dev_list[i], &config);
 
@@ -84,14 +82,14 @@ int CH340::init_usb(int vendor, int product) {
                     }
                     err = libusb_claim_interface(dev_handle, interfaceNum);
                     
-                    libusb_free_config_descriptor(config);  // Free the configuration descriptor.
+                    libusb_free_config_descriptor(config);
                     
                     if (err == 0) {
                         deviceFound = true;
-                        break;  // Break out of the loop once a device is found and an interface is claimed.
+                        break;
                     } else {
                         std::cout << "Error claiming interface: " << libusb_error_name(err) << std::endl;
-                        libusb_close(dev_handle);  // Close the handle if we couldn't claim the interface.
+                        libusb_close(dev_handle);
                         dev_handle = NULL;
                         return err;
                     }
