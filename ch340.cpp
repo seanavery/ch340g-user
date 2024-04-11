@@ -1,6 +1,8 @@
 #include "ch340.h"
 #include <stdio.h>
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 
 int CH340::init(int vendor, int product, int baudrate) {
     int err;
@@ -142,31 +144,38 @@ int CH340::handshake() {
 
 int CH340::set_baud(int baudrate) {
     // List of available baudrates
+    // baudrate, msg1, msg2
     static int baud[] = {
-        2400,
-        4800,
-        9600,
-        19200,
-        38400,
-        115200
+        2400,   0xd901, 0x0038,
+        4800,   0x6402, 0x001f,
+        9600,   0xb202, 0x0013,
+        19200,  0xd902, 0x000d,
+        38400,  0x6403, 0x000a,
+        115200, 0xcc03, 0x0008
     };
-    int err = 0;
-
-    for (int i = 0; i < sizeof(baud)/sizeof(int) / 3; i++) {
-        if (baud[i * 3] == baudrate) {
-
-            err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x1312, baud[i * 3 + 1], NULL, 0, 1000);
-            if (err < 0) {
-                printf("could not set baudrate \n");
-                return err;
-            }
-
-            err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x0f2c, baud[i * 3 + 2], NULL, 0, 1000);
-            if (err < 0) {
-                printf("could not set baudrate \n");
-                return err;
-            }
+    int i = -1;
+    for (int j = 0; j < sizeof(baud)/sizeof(baud[0]); j += 3) {
+        if (baud[j] == baudrate) {
+            i = j;
+            break;
         }
+    }
+    if (i == -1) {
+        printf("baudrate not supported \n");
+        return -1;
+    }
+
+    int err = 0;
+    err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x1312, baud[i * 3 + 1], NULL, 0, 1000);
+    if (err < 0) {
+        printf("could not set baudrate \n");
+        return err;
+    }
+
+    err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x0f2c, baud[i * 3 + 2], NULL, 0, 1000);
+    if (err < 0) {
+        printf("could not set baudrate \n");
+        return err;
     }
     return err;
 }
