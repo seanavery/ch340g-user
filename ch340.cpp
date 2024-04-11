@@ -47,51 +47,59 @@ int CH340::init_usb(int vendor, int product) {
     libusb_device **dev_list = NULL;
     ssize_t num_devices = libusb_get_device_list(ctx, &dev_list);
     if (num_devices < 0) {
+        libusb_exit(ctx);
         return -1;
     }
 
     bool deviceFound = false;
-    for (int i = 0; i < num_devices; i++) {
+    std::cout << "looking for vendor: " << vendor << " product: " << product << std::endl;
+    for (ssize_t i = 0; i < num_devices; i++) {
         libusb_device_descriptor desc;
-        libusb_get_device_descriptor(dev_list[i], &desc);
-        std::cout << "Product: " << desc.iProduct << std::endl;
-        std::cout << "Vendor: " << desc.idVendor << std::endl;
-        std::cout << "Description: " << desc.iManufacturer << std::endl;
-        if (desc.idVendor == vendor && desc.idProduct == product) {
-            dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
-            if (dev_handle) {
-                std::cout << "Device opened" << std::endl;
+        if (libusb_get_device_descriptor(dev_list[i], &desc) == 0) {
+            std::cout << "Product ID: " << desc.idProduct << std::endl;
+            std::cout << "Vendor: " << desc.idVendor << std::endl;
+            std::cout << "Manufacturer: " << desc.iManufacturer << std::endl;
+            std::cout << "serial Num: " << desc.iSerialNumber << std::endl;
+            std::cout << "Product: " << desc.iProduct << std::endl;
+            if (desc.idVendor == vendor && desc.idProduct == product) {
+                std::cout << "Device found" << std::endl;
+                dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
+                if (dev_handle) {
+                    std::cout << "Device opened" << std::endl;
 
-                libusb_config_descriptor *config;
-                libusb_get_active_config_descriptor(dev_list[i], &config);
+                    libusb_config_descriptor *config;
+                    libusb_get_active_config_descriptor(dev_list[i], &config);
 
-                int interfaceNum = config->interface[0].altsetting[0].bInterfaceNumber;
-                std::cout << "Interface number: " << interfaceNum << std::endl;
+                    int interfaceNum = config->interface[0].altsetting[0].bInterfaceNumber;
+                    std::cout << "Interface number: " << interfaceNum << std::endl;
 
-                if (libusb_kernel_driver_active(dev_handle, interfaceNum)) {
-                    err = libusb_detach_kernel_driver(dev_handle, interfaceNum);
-                    if (err != 0) {
-                        std::cout << "Error detaching kernel driver: " << libusb_error_name(err) << std::endl;
-                        libusb_close(dev_handle);
-                        libusb_exit(ctx);
+                    if (libusb_kernel_driver_active(dev_handle, interfaceNum)) {
+                        err = libusb_detach_kernel_driver(dev_handle, interfaceNum);
+                        if (err != 0) {
+                            std::cout << "Error detaching kernel driver: " << libusb_error_name(err) << std::endl;
+                            libusb_close(dev_handle);
+                            libusb_exit(ctx);
+                            return err;
+                        }
+                    }
+                    err = libusb_claim_interface(dev_handle, interfaceNum);
+                    
+                    libusb_free_config_descriptor(config);  // Free the configuration descriptor.
+                    
+                    if (err == 0) {
+                        deviceFound = true;
+                        break;  // Break out of the loop once a device is found and an interface is claimed.
+                    } else {
+                        std::cout << "Error claiming interface: " << libusb_error_name(err) << std::endl;
+                        libusb_close(dev_handle);  // Close the handle if we couldn't claim the interface.
+                        dev_handle = NULL;
                         return err;
                     }
                 }
-                err = libusb_claim_interface(dev_handle, interfaceNum);
-                
-                libusb_free_config_descriptor(config);  // Free the configuration descriptor.
-                
-                if (err == 0) {
-                    deviceFound = true;
-                    break;  // Break out of the loop once a device is found and an interface is claimed.
-                } else {
-                    std::cout << "Error claiming interface: " << libusb_error_name(err) << std::endl;
-                    libusb_close(dev_handle);  // Close the handle if we couldn't claim the interface.
-                    dev_handle = NULL;
-                    return err;
-                }
+                break;
             }
         }
+
     }
 
     if (dev_handle == NULL) {
