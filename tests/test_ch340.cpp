@@ -15,16 +15,19 @@ int main(int argc, char *argv[]) {
 
     CH340 ch340;
     int err = ch340.init(product, vendor);
-    
     if (err < 0) {
         std::cout << "Error initializing CH340 device." << std::endl;
         return 1;
     }
     std::cout << "CH340 device initialized." << std::endl;
 
-    // test write
-    // test read
+    unsigned char data[10] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
+    err = ch340.bulk_write(EP_DATA_OUT, data, 10, 1000);
+    if (err < 0) {
+        std::cout << "Error writing data to CH340 device." << std::endl;
+        return 1;
+    }
+    std::cout << "Data written to CH340 device." << std::endl;
 
-    std::cout << "Tests completed." << std::endl;
     return 0;
 }
