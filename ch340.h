@@ -2,7 +2,6 @@
 #include <vector>
 #include <string>
 
-#define INTERFACE 0
 #define BAUDRATE 115200
 
 #define CTRL_IN (LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN)
@@ -14,7 +13,7 @@ class CH340 {
         uint8_t dtr = 0;
         uint8_t rts = 0;
         libusb_context *ctx = NULL;
-        libusb_device_handle *dev_handle;
+        libusb_device_handle *dev_handle = NULL;
     
     public:
         // USB driver
