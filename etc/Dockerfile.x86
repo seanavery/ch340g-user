@@ -7,9 +7,9 @@ RUN apt-get -y install \
     git cmake build-essential \
     libusb-1.0-0-dev 
 
-# Install libch340g
-RUN git clone https://github.com/seanavery/ch340g-user.git && \
-    cd ch340g-user && \
+# Install libch340
+RUN git clone https://github.com/seanavery/lib-ch340.git && \
+    cd lib-ch340 && \
     mkdir build && \
     cd build && \
     cmake .. && \

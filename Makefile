@@ -1,3 +1,12 @@
+TARGET ?= $(shell uname -m)
+ifeq ($(TARGET),arm64)
+	DOCKER = Dockerfile.arm64
+else ifeq ($(TARGET),x86_64)
+	DOCKER = Dockerfile.x86
+else
+	DOCKER = Dockerfile.x86
+endif
+
 .PHONY: build install build-x86 build-arm64 bin-arm64
 
 install: build
@@ -10,24 +19,16 @@ build:
 	cmake .. && \
 	make
 
-# Builds x86 libraries
-build-x86:
+build:
 	docker build \
-	-t lib-ch340g-x86 \
-	-f ./etc/Dockerfile.x86 ./
+	-t lib-ch340-$(TARGET) \
+	-f ./etc/$(DOCKER) ./
 
-# Builds arm64 libraries
-build-arm64:
-	docker build \
-	-t lib-ch340g-arm64 \
-	-f ./etc/Dockerfile.arm64 ./
-
-# Copies library files from container to host
-bin-arm64:
+sync:
 	rm -rf ./bin || true
 	mkdir -p ./bin
-	docker run --name lib-ch340g-arm64-bin lib-ch340g-arm64
-	docker cp lib-ch340g-arm64-bin:/usr/local/lib/ ./bin
-	docker cp lib-ch340g-arm64-bin:/usr/local/include/ch340g.h ./bin
-	docker stop lib-ch340g-arm64-bin
-	docker rm lib-ch340g-arm64-bin
+	docker run --name lib-ch340-$(TARGET)-bin lib-ch340-$(TARGET)
+	docker cp lib-ch340-$(TARGET)-bin:/usr/local/lib/ ./bin
+	docker cp lib-ch340-$(TARGET)-bin:/usr/local/include/ ./bin
+	docker stop lib-ch340-$(TARGET)-bin
+	docker rm lib-ch340-$(TARGET)-bin
