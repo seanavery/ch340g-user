@@ -1,10 +1,13 @@
 # libch340
-> read/write to ch340g device without tty driver
+> read/write to ch340 device without tty driver
+
+
+![](./etc/nano.png)
 
 ___
 
 ### why?
-You bought an off brand arduino and realize that it comes with a ch340 instead of ftdi. Can't find arm64 binary for tty driver? Use lib-ch340g to easily read/write to your microcontroller from any linux host.
+You bought an off brand arduino and realize that it comes with a ch340 instead of ftdi. Can't find arm64 binary for tty driver? Use lib-ch340 to easily read/write to your microcontroller from any linux host.
 
 
 ### usage
