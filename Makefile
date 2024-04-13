@@ -1,10 +1,10 @@
 TARGET ?= $(shell uname -m)
 ifeq ($(TARGET),arm64)
 	DOCKER = Dockerfile.arm64
-else ifeq ($(TARGET),x86_64)
-	DOCKER = Dockerfile.x86
+else ifeq ($(TARGET),amd64)
+	DOCKER = Dockerfile.amd64
 else
-	DOCKER = Dockerfile.x86
+	DOCKER = Dockerfile.arm64
 endif
 
 .PHONY: build install build-x86 build-arm64 bin-arm64
@@ -19,7 +19,7 @@ build:
 	cmake .. && \
 	make
 
-build:
+build-docker:
 	docker build \
 	-t lib-ch340-$(TARGET) \
 	-f ./etc/$(DOCKER) ./
