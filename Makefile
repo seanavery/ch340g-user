@@ -1,4 +1,4 @@
-TARGET ?= $(shell uname -m)
+TARGET ?= arm64
 ifeq ($(TARGET),arm64)
 	DOCKER = Dockerfile.arm64
 else ifeq ($(TARGET),amd64)
@@ -7,7 +7,7 @@ else
 	DOCKER = Dockerfile.arm64
 endif
 
-.PHONY: build install build-x86 build-arm64 bin-arm64
+.PHONY: build install build-docker sync
 
 install: build
 	cd build && \
