@@ -26,3 +26,17 @@ TARGET=arm64 make build-docker # builds arm64 targets in docker
 ```bash
 TARGET=[amd64|arm64] make sync # copies build to local fs
 ```
+
+### test
+
+Run `lsusb` to find vendor and product id for ch340 device. Look for description such as:
+
+```
+Bus 003 Device 072: ID 1a86:7523 QinHeng Electronics HL-340 USB-Serial adapte
+```
+
+Run test script with vendor and prouct:
+
+```
+./build/tests/test_ch340 1a86 7523
+```
