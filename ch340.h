@@ -1,13 +1,21 @@
 #include <libusb-1.0/libusb.h>
 #include <vector>
 #include <string>
+#include <cstdlib>
 
 #define BAUDRATE 115200
-#define DEBUG 0
 
 #define CTRL_IN (LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_IN)
 #define CTRL_OUT (LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_ENDPOINT_OUT)
 #define EP_DATA_OUT (0x2 | LIBUSB_ENDPOINT_OUT)
+
+bool debug = false;
+void checkDebugEnv() {
+    const char* debug_env = std::getenv("DEBUG");
+    if (debug_env != nullptr && std::string(debug_env) == "1") {
+        debug = true;
+    }
+}
 
 class CH340 {
     private:

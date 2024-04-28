@@ -55,7 +55,7 @@ int CH340::init_usb(int vendor, int product) {
     for (ssize_t i = 0; i < num_devices; i++) {
         libusb_device_descriptor desc;
         if (libusb_get_device_descriptor(dev_list[i], &desc) == 0) {
-            if (DEBUG) {
+            if (debug) {
                 std::cout << "Product ID: " << desc.idProduct << std::endl;
                 std::cout << "Vendor: " << desc.idVendor << std::endl;
                 std::cout << "Manufacturer: " << desc.iManufacturer << std::endl;
