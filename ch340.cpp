@@ -161,20 +161,20 @@ int CH340::set_baud(int baudrate) {
         }
     }
     if (i == -1) {
-        printf("baudrate not supported \n");
+        std::cerr << "Baudrate not supported." << std::endl;
         return -1;
     }
 
     int err = 0;
     err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x1312, baud[i * 3 + 1], NULL, 0, 1000);
     if (err < 0) {
-        printf("could not set baudrate \n");
+        std::cerr << "Could not set baudrate." << std::endl;
         return err;
     }
 
     err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x0f2c, baud[i * 3 + 2], NULL, 0, 1000);
     if (err < 0) {
-        printf("could not set baudrate \n");
+        std::cerr << "Could not set baudrate." << std::endl;
         return err;
     }
     return err;
@@ -184,7 +184,7 @@ int CH340::up() {
     int err = 0;
     err = libusb_control_transfer(dev_handle, CTRL_OUT, 0xa4, ~((dtr ? 1 << 5 : 0) | (rts ? 1 << 6 : 0)), 0, NULL, 0, 1000);
     if (err < 0) {
-        printf("first handshake failed \n");
+        std::cerr << "Error during up: " << libusb_error_name(err) << std::endl;
         return err;
     }
     return err;
@@ -196,11 +196,9 @@ int CH340::bulk_write(unsigned char endpoint, unsigned char* data, int length, u
     int transferred = 0;
     err = libusb_bulk_transfer(dev_handle, endpoint, data, length, &transferred, timeout);
     if (err < 0) {
-        printf("error during bulk write \n");
+        std::cerr << "Error during bulk write: " << libusb_error_name(err) << std::endl;
         return err;
     }
-
-    printf("transferred %d bytes \n", transferred);
     
     return err;
 }
@@ -211,11 +209,9 @@ int CH340::bulk_read(unsigned char endpoint, unsigned char* data, int length, un
     int transferred = 0;
     err = libusb_bulk_transfer(dev_handle, endpoint, data, length, &transferred, timeout);
     if (err < 0) {
-        printf("error during bulk read \n");
+        std::cerr << "Error during bulk read: " << libusb_error_name(err) << std::endl;
         return err;
     }
-
-    std::cout << "read bytes: " << transferred << std::endl;
 
     return transferred;
 }
