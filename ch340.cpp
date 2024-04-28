@@ -9,30 +9,27 @@ int CH340::init(int vendor, int product, int baudrate) {
     
     err = init_usb(vendor, product);
     if (err != 0) {
-        printf("error: %d \n", err);
+        std::cerr << "Error initializing usb: " << libusb_error_name(err) << std::endl;
         return err;
     }
-    printf("usb interface initialized \n");
 
     err = handshake();
     if (err != 0) {
-        printf("error: %d \n", err);
+        std::cerr << "Error during handshake: " << libusb_error_name(err) << std::endl;
         return err;
     }
-    printf("ch340g initialized \n");
 
     err = set_baud(baudrate);
     if (err != 0) {
-        printf("error: %d \n", err);
+        std::cerr << "Error setting baudrate: " << libusb_error_name(err) << std::endl;
         return err;
     }
 
     err = up();
     if (err != 0) {
-        printf("error: %d \n", err);
+        std::cerr << "Error during up: " << libusb_error_name(err) << std::endl;
         return err;
     }
-    printf("ch340g up \n");
 
     return err;
 }
