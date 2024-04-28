@@ -40,3 +40,15 @@ Run test script with vendor and prouct:
 ```
 ./build/tests/test_ch340 1a86 7523
 ```
+
+### remove sudo requirement
+Replace vendor and product id from `lsusb` query.
+
+```
+echo 'SUBSYSTEM=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="0666"' | \
+sudo tee /etc/udev/rules.d/99-usb-serial.rules > /dev/null && \
+sudo udevadm control --reload-rules && sudo udevadm trigger
+
+```
+
+Reconnect the device to trigger rule.
