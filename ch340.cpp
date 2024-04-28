@@ -42,12 +42,14 @@ int CH340::init_usb(int vendor, int product) {
 
     err = libusb_init(&ctx);
     if (err != 0) {
+        std::cerr << "Error initializing libusb: " << libusb_error_name(err) << std::endl;
         return err;
     }
 
     libusb_device **dev_list = NULL;
     ssize_t num_devices = libusb_get_device_list(ctx, &dev_list);
     if (num_devices < 0) {
+        std::cerr << "Error getting device list." << std::endl;
         libusb_exit(ctx);
         return -1;
     }
@@ -74,7 +76,7 @@ int CH340::init_usb(int vendor, int product) {
                     if (libusb_kernel_driver_active(dev_handle, interfaceNum)) {
                         err = libusb_detach_kernel_driver(dev_handle, interfaceNum);
                         if (err != 0) {
-                            std::cout << "Error detaching kernel driver: " << libusb_error_name(err) << std::endl;
+                            std::cerr << "Error detaching kernel driver: " << libusb_error_name(err) << std::endl;
                             libusb_close(dev_handle);
                             libusb_exit(ctx);
                             return err;
@@ -88,7 +90,7 @@ int CH340::init_usb(int vendor, int product) {
                         deviceFound = true;
                         break;
                     } else {
-                        std::cout << "Error claiming interface: " << libusb_error_name(err) << std::endl;
+                        std::cerr << "Error claiming interface: " << libusb_error_name(err) << std::endl;
                         libusb_close(dev_handle);
                         dev_handle = NULL;
                         return err;
@@ -97,11 +99,10 @@ int CH340::init_usb(int vendor, int product) {
                 break;
             }
         }
-
     }
 
     if (dev_handle == NULL) {
-        printf("could not find MCU \n");
+        std::cerr << "Could not find device." << std::endl;
         return -1;
     }
 
@@ -110,7 +111,7 @@ int CH340::init_usb(int vendor, int product) {
 
 int CH340::handshake() {
   if (dev_handle == NULL) {
-    printf("dev_handle not defined \n");
+    std::cerr << "dev_handle not defined." << std::endl;
     return -1;
   }
 
@@ -120,21 +121,21 @@ int CH340::handshake() {
   err = libusb_control_transfer(dev_handle, CTRL_OUT, 0xa1, 0, 0, NULL, 0, 1000);
   if (err < 0)
   {
-    printf("setp 1 failed \n");
+    std::cerr << "Error during handshake: " << libusb_error_name(err) << std::endl;
     return err;
   }
   // 2
   err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x2518, 0x0050, NULL, 0, 1000);
   if (err < 0)
   {
-    printf("step 2 failed \n");
+    std::cerr << "Error during handshake: " << libusb_error_name(err) << std::endl;
     return err;
   }
   // 3
   err = libusb_control_transfer(dev_handle, CTRL_OUT, 0xa1, 0x501f, 0xd90a, NULL, 0, 1000);
   if (err < 0)
   {
-    printf("step 3 failed \n");
+    std::cerr << "Error during handshake: " << libusb_error_name(err) << std::endl;
     return err;
   }
 
