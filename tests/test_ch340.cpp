@@ -10,11 +10,12 @@ int main(int argc, char *argv[]) {
         std::cout << "Run lsusb to get the vendor and product id." << std::endl;
         return 1;
     }
-    int product = std::stoi(argv[2]);
-    int vendor = std::stoi(argv[1]);
+    int vendor = std::stoul(argv[1], nullptr, 16);
+    int product = std::stoul(argv[2], nullptr, 16);
 
+    checkDebugEnv();
     CH340 ch340;
-    int err = ch340.init(product, vendor);
+    int err = ch340.init(vendor, product);
     if (err < 0) {
         std::cout << "Error initializing CH340 device." << std::endl;
         return 1;
