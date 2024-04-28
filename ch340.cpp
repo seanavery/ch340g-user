@@ -56,21 +56,20 @@ int CH340::init_usb(int vendor, int product) {
     for (ssize_t i = 0; i < num_devices; i++) {
         libusb_device_descriptor desc;
         if (libusb_get_device_descriptor(dev_list[i], &desc) == 0) {
-            std::cout << "Product ID: " << desc.idProduct << std::endl;
-            std::cout << "Vendor: " << desc.idVendor << std::endl;
-            std::cout << "Manufacturer: " << desc.iManufacturer << std::endl;
-            std::cout << "serial Num: " << desc.iSerialNumber << std::endl;
-            std::cout << "Product: " << desc.iProduct << std::endl;
+            if (DEBUG) {
+                std::cout << "Product ID: " << desc.idProduct << std::endl;
+                std::cout << "Vendor: " << desc.idVendor << std::endl;
+                std::cout << "Manufacturer: " << desc.iManufacturer << std::endl;
+                std::cout << "serial Num: " << desc.iSerialNumber << std::endl;
+                std::cout << "Product: " << desc.iProduct << std::endl;
+            }
             if (desc.idVendor == vendor && desc.idProduct == product) {
-                std::cout << "Device found" << std::endl;
                 dev_handle = libusb_open_device_with_vid_pid(ctx, desc.idVendor, desc.idProduct);
                 if (dev_handle) {
-                    std::cout << "Device opened" << std::endl;
                     libusb_config_descriptor *config;
                     libusb_get_active_config_descriptor(dev_list[i], &config);
 
                     int interfaceNum = config->interface[0].altsetting[0].bInterfaceNumber;
-                    std::cout << "Interface number: " << interfaceNum << std::endl;
 
                     if (libusb_kernel_driver_active(dev_handle, interfaceNum)) {
                         err = libusb_detach_kernel_driver(dev_handle, interfaceNum);
