@@ -140,8 +140,6 @@ int CH340::handshake() {
 }
 
 int CH340::set_baud(int baudrate) {
-    // List of available baudrates
-    // baudrate, msg1, msg2
     static int baud[] = {
         2400,   0xd901, 0x0038,
         4800,   0x6402, 0x001f,
@@ -150,29 +148,23 @@ int CH340::set_baud(int baudrate) {
         38400,  0x6403, 0x000a,
         115200, 0xcc03, 0x0008
     };
-    int i = -1;
-    for (int j = 0; j < sizeof(baud)/sizeof(baud[0]); j += 3) {
-        if (baud[j] == baudrate) {
-            i = j;
-            break;
-        }
-    }
-    if (i == -1) {
-        std::cerr << "Baudrate not supported." << std::endl;
-        return -1;
-    }
 
     int err = 0;
-    err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x1312, baud[i * 3 + 1], NULL, 0, 1000);
-    if (err < 0) {
-        std::cerr << "Could not set baudrate." << std::endl;
-        return err;
-    }
+    for (int i = 0; i < sizeof(baud)/sizeof(int) / 3; i++) {
+        if (baud[i * 3] == baudrate) {
 
-    err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x0f2c, baud[i * 3 + 2], NULL, 0, 1000);
-    if (err < 0) {
-        std::cerr << "Could not set baudrate." << std::endl;
-        return err;
+            err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x1312, baud[i * 3 + 1], NULL, 0, 1000);
+            if (err < 0) {
+                printf("could not set baudrate \n");
+                return err;
+            }
+
+            err = libusb_control_transfer(dev_handle, CTRL_OUT, 0x9a, 0x0f2c, baud[i * 3 + 2], NULL, 0, 1000);
+            if (err < 0) {
+                printf("could not set baudrate \n");
+                return err;
+            }
+        }
     }
     return err;
 }
