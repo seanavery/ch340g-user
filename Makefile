@@ -20,7 +20,7 @@ build:
 	make
 
 build-docker:
-	docker build \
+	docker build --no-cache \
 	-t lib-ch340-$(TARGET) \
 	-f ./etc/$(DOCKER) ./
 
